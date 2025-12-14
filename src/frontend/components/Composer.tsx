@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Loader2, Brain, PenTool, Layout, Share2, MessageSquare } from 'lucide-react';
 import type { NoteIntent } from '../../types';
 
@@ -22,12 +22,22 @@ export function Composer({ onCompose, loading }: ComposerProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!content.trim()) return;
+        if (!content.trim() || loading) return;
+
         await onCompose(content, intent);
         setContent('');
-        // Restore focus immediately after submission completes and disabled state lifts
-        setTimeout(() => textareaRef.current?.focus(), 0);
+        // Keep focus
+        requestAnimationFrame(() => {
+            textareaRef.current?.focus();
+        });
     };
+
+    // Ensure focus is maintained if loading state toggles interaction
+    useEffect(() => {
+        if (!loading && content === '') {
+            textareaRef.current?.focus();
+        }
+    }, [loading, content]);
 
     return (
         <div className="max-w-3xl mx-auto w-full">
@@ -63,13 +73,14 @@ export function Composer({ onCompose, loading }: ComposerProps) {
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
-                                if (content.trim()) handleSubmit(e);
+                                handleSubmit(e);
                             }
                         }}
                         placeholder="Type a thought..."
                         className="w-full bg-transparent border-none focus:ring-0 text-base placeholder-gray-400 resize-none min-h-[44px] max-h-[200px] py-2 px-3 text-gray-900"
                         rows={1}
-                        disabled={loading}
+                        // Do NOT disable on loading, otherwise focus is lost
+                        disabled={false}
                     />
                     <button
                         type="submit"
