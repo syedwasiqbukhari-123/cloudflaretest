@@ -15,9 +15,13 @@ This is the **Golden Template** for [wasiq.co] applications.
    - Note: To test Backend Functions locally, use `npx wrangler pages dev dist` (after building) or configure `wrangler` proxy.
 
 ## Deployment
-- Cloudflare Pages will automatically detect `npm run build` as the build command.
-- Build output directory: `dist`.
-- Functions are automatically deployed from `functions/`.
+**Recommended Method (Professional Setup)**:
+1. Run `npm run build` to generate the `dist` folder.
+2. Run `npx wrangler deploy`.
+   - This uses the `wrangler.jsonc` configuration to deploy the `dist` folder as static assets.
+
+**Alternative**:
+- Cloudflare Pages automatic build detection (Build command: `npm run build`, Output: `dist`).
 
 ## AI Agent Context
 If you are an AI agent reading this:
