@@ -17,3 +17,10 @@ export interface Note {
 export type ApiResponse = {
     notes: Note[];
 };
+
+export interface Space {
+    id: string;
+    label: string;
+    icon: string; // lucide icon name or generic type
+    color?: string;
+}

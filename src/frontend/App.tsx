@@ -5,21 +5,27 @@ import { Composer } from "./components/Composer";
 import { Bubble } from "./components/Bubble";
 import { NoteOverlay } from "./components/NoteOverlay";
 import { Sidebar } from "./components/Sidebar";
+import { SpaceHeader } from "./components/SpaceHeader"; // [NEW]
+import { useSpaces } from "./hooks/useSpaces"; // [NEW]
 
 function App() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [fetching, setFetching] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [activeSpace, setActiveSpace] = useState('main');
+  const [activeSpaceId, setActiveSpaceId] = useState('main'); // Renamed for clarity
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Custom Hook for Spaces
+  const { spaces, addSpace, getSpace } = useSpaces();
+  const currentSpace = getSpace(activeSpaceId);
 
   // Ref for auto-scroll
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchNotes(activeSpace);
-  }, [activeSpace]);
+    fetchNotes(activeSpaceId);
+  }, [activeSpaceId]);
 
   // Only show active notes (Alive/Warming/Cooling)
   const activeBubbles = notes.filter(n => n.status !== 'archived');
@@ -29,7 +35,7 @@ function App() {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [activeBubbles.length, activeSpace]);
+  }, [activeBubbles.length, activeSpaceId]);
 
   const fetchNotes = async (space: string) => {
     setFetching(true);
@@ -58,7 +64,7 @@ function App() {
       const res = await fetch("/api/notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, intent, space: activeSpace }),
+        body: JSON.stringify({ content, intent, space: activeSpaceId }),
       });
       if (res.ok) {
         const newNote = await res.json() as Note;
@@ -82,7 +88,7 @@ function App() {
         body: JSON.stringify({ content })
       });
     } catch {
-      fetchNotes(activeSpace); // revert on fail
+      fetchNotes(activeSpaceId); // revert on fail
     }
   };
 
@@ -95,7 +101,7 @@ function App() {
         body: JSON.stringify({ summary }),
       });
     } catch {
-      fetchNotes(activeSpace);
+      fetchNotes(activeSpaceId);
     }
   };
 
@@ -103,12 +109,22 @@ function App() {
     <div className="flex h-screen bg-white text-gray-900 font-sans selection:bg-gray-100 overflow-hidden">
 
       {/* Sidebar */}
-      <Sidebar activeSpace={activeSpace} onSpaceChange={setActiveSpace} />
+      <Sidebar
+        activeSpace={activeSpaceId}
+        spaces={spaces}
+        onSpaceChange={setActiveSpaceId}
+        onAddSpace={(label) => {
+          const newSpace = addSpace(label);
+          setActiveSpaceId(newSpace.id);
+        }}
+      />
 
       {/* Main Canvas */}
       <main className="flex-1 flex flex-col relative w-full h-full">
 
-        {/* Bubble Field */}
+        {/* Space Header */}
+        <SpaceHeader space={currentSpace} />
+
         {/* Bubble Field */}
         <div className="flex-1 min-h-0 overflow-y-auto px-6 md:px-12 py-4 flex flex-col custom-scrollbar">
 
@@ -125,7 +141,7 @@ function App() {
               <div className="w-full flex flex-col items-center justify-center py-20 text-red-500 opacity-80">
                 <p>Failed to load thoughts.</p>
                 <p className="text-xs mt-2">{error}</p>
-                <button onClick={() => fetchNotes(activeSpace)} className="mt-4 px-4 py-2 bg-red-100 rounded-full text-sm hover:bg-red-200">Retry</button>
+                <button onClick={() => fetchNotes(activeSpaceId)} className="mt-4 px-4 py-2 bg-red-100 rounded-full text-sm hover:bg-red-200">Retry</button>
               </div>
             ) : activeBubbles.length === 0 ? (
               <div className="w-full flex flex-col items-center justify-center py-20 opacity-40 text-gray-300">
