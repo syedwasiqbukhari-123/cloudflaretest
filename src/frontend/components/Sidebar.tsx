@@ -14,9 +14,9 @@ const SPACES = [
 
 export function Sidebar({ activeSpace, onSpaceChange }: SidebarProps) {
     return (
-        <div className="w-16 md:w-64 border-r border-gray-900 flex flex-col items-center md:items-stretch py-8 bg-black">
+        <div className="w-16 md:w-64 border-r border-gray-200 flex flex-col items-center md:items-stretch py-8 bg-gray-50">
             <div className="mb-8 px-0 md:px-6 flex justify-center md:justify-start">
-                <div className="bg-white p-2 text-black rounded-lg">
+                <div className="bg-white p-2 text-black border border-gray-200 rounded-lg shadow-sm">
                     <Clock className="w-5 h-5" />
                 </div>
             </div>
@@ -30,8 +30,8 @@ export function Sidebar({ activeSpace, onSpaceChange }: SidebarProps) {
                             key={space.id}
                             onClick={() => onSpaceChange(space.id)}
                             className={`w-full flex items-center justify-center md:justify-start gap-3 p-3 rounded-xl transition-all ${isActive
-                                    ? 'bg-gray-900 text-white shadow-lg'
-                                    : 'text-gray-500 hover:text-gray-300 hover:bg-gray-900/50'
+                                ? 'bg-white text-black shadow-sm border border-gray-200'
+                                : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'
                                 }`}
                         >
                             <Icon className="w-5 h-5 flex-shrink-0" />
@@ -42,7 +42,7 @@ export function Sidebar({ activeSpace, onSpaceChange }: SidebarProps) {
             </nav>
 
             <div className="mt-auto px-4 hidden md:block">
-                <p className="text-xs text-gray-700 text-center">Durable v3.0</p>
+                <p className="text-xs text-gray-400 text-center">Durable v3.0</p>
             </div>
         </div>
     );

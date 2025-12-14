@@ -38,9 +38,9 @@ export function Composer({ onCompose, loading }: ComposerProps) {
                                 key={item.id}
                                 type="button"
                                 onClick={() => setIntent(item.id)}
-                                className={`p-1.5 rounded-full transition-all border border-gray-800 bg-black ${isSelected
-                                        ? 'text-white border-gray-600 bg-gray-900'
-                                        : 'text-gray-600 hover:text-gray-400'
+                                className={`p-1.5 rounded-full transition-all border border-gray-200 bg-white ${isSelected
+                                    ? 'text-black border-gray-400 bg-gray-100 shadow-sm'
+                                    : 'text-gray-400 hover:text-gray-600'
                                     }`}
                                 title={item.label}
                             >
@@ -50,7 +50,7 @@ export function Composer({ onCompose, loading }: ComposerProps) {
                     })}
                 </div>
 
-                <div className="relative flex items-center bg-gray-900/40 border border-gray-800 rounded-2xl p-2 transition-colors focus-within:border-gray-600 focus-within:bg-gray-900">
+                <div className="relative flex items-center bg-white border border-gray-200 rounded-2xl p-2 transition-all shadow-sm focus-within:shadow-md focus-within:border-gray-300">
                     <textarea
                         value={content}
                         onChange={(e) => {
@@ -63,16 +63,16 @@ export function Composer({ onCompose, loading }: ComposerProps) {
                             }
                         }}
                         placeholder="Type a thought..."
-                        className="w-full bg-transparent border-none focus:ring-0 text-base placeholder-gray-600 resize-none min-h-[44px] max-h-[200px] py-2 px-3 text-gray-200"
+                        className="w-full bg-transparent border-none focus:ring-0 text-base placeholder-gray-400 resize-none min-h-[44px] max-h-[200px] py-2 px-3 text-gray-900"
                         rows={1}
                         disabled={loading}
                     />
                     <button
                         type="submit"
                         disabled={loading || !content.trim()}
-                        className="p-2 mr-1 rounded-xl text-gray-500 hover:text-white hover:bg-gray-800 transition-colors disabled:opacity-0"
+                        className="p-2 mr-1 rounded-xl text-gray-400 hover:text-black hover:bg-gray-100 transition-colors disabled:opacity-0"
                     >
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <div className="w-4 h-4 bg-white rounded-full" />}
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <div className="w-4 h-4 bg-black rounded-full" />}
                     </button>
                 </div>
             </form>

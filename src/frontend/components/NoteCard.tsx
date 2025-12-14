@@ -19,30 +19,30 @@ export function NoteCard({ note, onArchive }: NoteCardProps) {
 
     // Visual cues based on status (Text Color / Opacity instead of Border)
     const statusStyles = {
-        alive: "text-gray-100",
-        warming: "text-gray-400",
-        cooling: "text-gray-600",
+        alive: "text-gray-900 font-normal",
+        warming: "text-gray-500",
+        cooling: "text-gray-400",
         archived: "hidden",
     };
 
     return (
-        <div className={`group relative py-3 px-4 transition-all hover:bg-gray-900/30 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500`}>
+        <div className={`group relative py-3 px-4 transition-all hover:bg-gray-100 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500`}>
             <div className="flex items-start gap-4 mx-auto max-w-3xl">
                 {/* Icon Column */}
                 <div className="mt-1 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
-                    <Icon className="w-4 h-4 text-gray-500" />
+                    <Icon className="w-4 h-4 text-gray-400 group-hover:text-black" />
                 </div>
 
                 {/* Content Column */}
                 <div className="flex-1 min-w-0">
-                    <div className={`text-base leading-relaxed whitespace-pre-wrap font-light ${statusStyles[note.status]}`}>
+                    <div className={`text-base leading-relaxed whitespace-pre-wrap ${statusStyles[note.status]}`}>
                         {note.content}
                     </div>
-                    <div className="mt-1 flex items-center justify-between text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="mt-1 flex items-center justify-between text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
                         <span>{new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         <button
                             onClick={() => onArchive(note.id)}
-                            className="hover:text-white transition-colors"
+                            className="hover:text-black transition-colors"
                         >
                             Archive
                         </button>

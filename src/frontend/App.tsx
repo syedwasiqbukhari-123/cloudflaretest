@@ -72,7 +72,7 @@ function App() {
   // Archived are totally hidden in this view (or we could have an archive toggle elsewhere, but keeping it simple as per prompt).
 
   return (
-    <div className="flex h-screen bg-black text-gray-200 font-sans selection:bg-gray-800 overflow-hidden">
+    <div className="flex h-screen bg-white text-gray-900 font-sans selection:bg-gray-200 overflow-hidden">
 
       {/* Sidebar */}
       <Sidebar activeSpace={activeSpace} onSpaceChange={setActiveSpace} />
@@ -85,12 +85,12 @@ function App() {
 
           {fetching ? (
             <div className="flex justify-center py-20 opacity-50">
-              <Loader2 className="w-6 h-6 animate-spin" />
+              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
             </div>
           ) : activeStream.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 opacity-20 pb-20">
+            <div className="flex flex-col items-center justify-center flex-1 opacity-40 pb-20 text-gray-400">
               <Wind className="w-16 h-16 mb-4" />
-              <p className="font-light">Empty space.</p>
+              <p className="font-light">Mind clear. Ready for thoughts.</p>
             </div>
           ) : (
             activeStream.map(note => (
@@ -103,7 +103,7 @@ function App() {
         </div>
 
         {/* Input Area (Anchored Bottom) */}
-        <div className="p-4 md:p-6 pb-8 bg-gradient-to-t from-black via-black to-transparent z-10">
+        <div className="p-4 md:p-6 pb-8 bg-gradient-to-t from-white via-white to-transparent z-10">
           <Composer onCompose={handleCompose} loading={loading} />
         </div>
 
