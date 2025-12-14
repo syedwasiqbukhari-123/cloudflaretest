@@ -43,35 +43,35 @@ export function NoteOverlay({ note, onClose, onUpdate, onArchive }: NoteOverlayP
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/60 backdrop-blur-sm animate-in fade-in duration-200">
             <div
-                className="bg-white w-full max-w-lg p-8 rounded-3xl shadow-2xl border border-gray-100 flex flex-col gap-6 animate-in zoom-in-95 duration-200"
+                className="bg-white w-full max-w-2xl p-10 rounded-3xl shadow-2xl flex flex-col gap-8 animate-in zoom-in-95 duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header Actions */}
-                <div className="flex justify-between items-center text-gray-400">
-                    <button onClick={handleArchive} className="hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-50" title="Archive">
+                <div className="flex justify-between items-center text-gray-300">
+                    <button onClick={handleArchive} className="hover:text-red-400 transition-colors" title="Archive">
                         <Archive className="w-5 h-5" />
                     </button>
-                    <button onClick={onClose} className="hover:text-gray-900 transition-colors p-2 rounded-full hover:bg-gray-50" title="Close">
-                        <X className="w-5 h-5" />
+                    <button onClick={onClose} className="hover:text-gray-900 transition-colors" title="Close">
+                        <X className="w-6 h-6" />
                     </button>
                 </div>
 
                 {/* Editor */}
-                <div className="flex-1">
+                <div className="flex-1 min-h-[50vh] flex flex-col">
                     <textarea
                         value={content}
                         onChange={(e) => {
                             setContent(e.target.value);
                             setIsDirty(true);
                         }}
-                        className="w-full h-40 bg-transparent text-xl md:text-2xl font-light text-gray-900 placeholder-gray-300 border-none focus:ring-0 resize-none leading-relaxed"
+                        className="w-full flex-1 bg-transparent text-3xl font-normal text-gray-900 placeholder-gray-200 border-none focus:ring-0 outline-none resize-none leading-loose scrollbar-hide selection:bg-gray-100"
                         placeholder="Empty thought..."
                         autoFocus
                     />
                 </div>
 
                 {/* Footer Status */}
-                <div className="flex justify-between items-center pt-4 border-t border-gray-50">
+                <div className="flex justify-between items-center pt-2">
                     <span className="text-xs text-gray-300 uppercase tracking-widest font-medium">
                         {note.intent} • {new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
@@ -80,7 +80,7 @@ export function NoteOverlay({ note, onClose, onUpdate, onArchive }: NoteOverlayP
                         <button
                             onClick={handleSave}
                             disabled={saving}
-                            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-800 transition-all opacity-100 disabled:opacity-50"
+                            className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-900 transition-all opacity-100 disabled:opacity-50 shadow-lg hover:shadow-xl translate-y-0 hover:-translate-y-0.5"
                         >
                             {saving ? "Saving..." : <><Check className="w-4 h-4" /> Save Update</>}
                         </button>

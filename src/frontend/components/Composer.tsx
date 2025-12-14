@@ -20,12 +20,13 @@ export function Composer({ onCompose, loading }: ComposerProps) {
     const [intent, setIntent] = useState<NoteIntent>('thinking');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!content.trim() || loading) return;
+        if (!content.trim()) return;
 
-        await onCompose(content, intent);
+        onCompose(content, intent);
         setContent('');
+
         // Keep focus
         requestAnimationFrame(() => {
             textareaRef.current?.focus();
@@ -63,7 +64,7 @@ export function Composer({ onCompose, loading }: ComposerProps) {
                     })}
                 </div>
 
-                <div className="relative flex items-center bg-white border border-gray-200 rounded-2xl p-2 transition-all shadow-sm focus-within:shadow-md focus-within:border-gray-300">
+                <div className="relative flex items-center bg-white border border-gray-200 rounded-2xl p-2 transition-all shadow-sm">
                     <textarea
                         ref={textareaRef}
                         value={content}
@@ -77,14 +78,14 @@ export function Composer({ onCompose, loading }: ComposerProps) {
                             }
                         }}
                         placeholder="Type a thought..."
-                        className="w-full bg-transparent border-none focus:ring-0 text-base placeholder-gray-400 resize-none min-h-[44px] max-h-[200px] py-2 px-3 text-gray-900"
+                        className="w-full bg-transparent border-none focus:ring-0 outline-none text-base placeholder-gray-400 resize-none min-h-[44px] max-h-[200px] py-2 px-3 text-gray-900"
                         rows={1}
                         // Do NOT disable on loading, otherwise focus is lost
                         disabled={false}
                     />
                     <button
                         type="submit"
-                        disabled={loading || !content.trim()}
+                        disabled={!content.trim()}
                         className="p-2 mr-1 rounded-xl text-gray-400 hover:text-black hover:bg-gray-100 transition-colors disabled:opacity-0"
                     >
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <div className="w-4 h-4 bg-black rounded-full" />}
