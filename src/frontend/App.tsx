@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Wind } from "lucide-react";
 import type { Note, NoteIntent } from "../types";
 import { Composer } from "./components/Composer";
-import { NoteCard } from "./components/NoteCard";
+import { Bubble } from "./components/Bubble";
+import { NoteOverlay } from "./components/NoteOverlay";
 import { Sidebar } from "./components/Sidebar";
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
   const [fetching, setFetching] = useState(true);
   const [loading, setLoading] = useState(false);
   const [activeSpace, setActiveSpace] = useState('main');
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   useEffect(() => {
     fetchNotes(activeSpace);
@@ -21,7 +23,13 @@ function App() {
       const res = await fetch(`/api/notes?space=${space}`);
       if (res.ok) {
         const data = await res.json() as { notes: Note[] };
-        setNotes(data.notes || []);
+        // API returns Newest First (Desc).
+        // For Bubble Field (filling from top or bottom?), "Slides into current row" at bottom implies
+        // the "Active Edge" is at the bottom.
+        // So we want the list to end at the bottom.
+        // We sort Oldest -> Newest.
+        const sorted = (data.notes || []).sort((a, b) => a.createdAt - b.createdAt);
+        setNotes(sorted);
       }
     } catch (error) {
       console.error("Failed to fetch notes", error);
@@ -40,17 +48,27 @@ function App() {
       });
       if (res.ok) {
         const newNote = await res.json() as Note;
-        // In Chat Style, Newest is at BOTTOM.
-        // Our API sorts Newest First (Desc).
-        // Frontend State: [Newest (0), Older (1), ...]
-        // Render: flex-col-reverse -> Bottom = Item 0.
-        // So we add new note to START of array.
-        setNotes([newNote, ...notes]);
+        setNotes(prev => [...prev, newNote]); // Append to end (Bottom)
       }
     } catch (error) {
       console.error("Failed to create note", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdate = async (id: string, content: string) => {
+    // Optimistic
+    setNotes(notes.map(n => n.id === id ? { ...n, content } : n));
+
+    try {
+      await fetch(`/api/notes/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content })
+      });
+    } catch (err) {
+      fetchNotes(activeSpace); // revert on fail
     }
   };
 
@@ -67,46 +85,59 @@ function App() {
     }
   };
 
-  const activeStream = notes.filter(n => n.status !== 'archived');
-  // We can show cooling notes in stream, they just fade.
-  // Archived are totally hidden in this view (or we could have an archive toggle elsewhere, but keeping it simple as per prompt).
+  // Only show active notes (Alive/Warming/Cooling)
+  const activeBubbles = notes.filter(n => n.status !== 'archived');
 
   return (
-    <div className="flex h-screen bg-[#fafafa] text-gray-900 font-sans selection:bg-gray-200 overflow-hidden">
+    <div className="flex h-screen bg-white text-gray-900 font-sans selection:bg-gray-100 overflow-hidden">
 
       {/* Sidebar */}
       <Sidebar activeSpace={activeSpace} onSpaceChange={setActiveSpace} />
 
-      {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col relative max-w-4xl mx-auto w-full">
+      {/* Main Canvas */}
+      <main className="flex-1 flex flex-col relative w-full h-full">
 
-        {/* Stream (Flex Reverse for Bottom Up) */}
-        <div className="flex-1 flex flex-col-reverse overflow-y-auto px-4 md:px-12 py-8 space-y-reverse space-y-6 scrollbar-hide">
+        {/* Bubble Field */}
+        {/* 'content-end' aligns the wrapped rows to the bottom of the container */}
+        {/* 'items-end' aligns items within the row to the bottom (good for variable height) */}
+        <div className="flex-1 overflow-y-auto px-6 md:px-12 py-8 scrollbar-hide flex flex-col justify-end">
 
-          {fetching ? (
-            <div className="flex justify-center py-20 opacity-0 animate-pulse delay-500">
-              <Loader2 className="w-5 h-5 text-gray-300 animate-spin" />
-            </div>
-          ) : activeStream.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 opacity-0 animate-in fade-in duration-1000">
-              <p className="font-light text-gray-300 text-sm tracking-widest uppercase">Space Empty</p>
-            </div>
-          ) : (
-            activeStream.map(note => (
-              <NoteCard key={note.id} note={note} onArchive={handleArchive} />
-            ))
-          )}
+          <div className="flex flex-wrap items-end content-end gap-3 pb-4 min-h-0">
+            {fetching ? (
+              <div className="w-full flex justify-center py-20 opacity-30">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              </div>
+            ) : activeBubbles.length === 0 ? (
+              <div className="w-full flex flex-col items-center justify-center py-20 opacity-40 text-gray-300">
+                <Wind className="w-12 h-12 mb-4 opacity-50" />
+                <p className="font-light tracking-wide">Mind clear. Ready for thoughts.</p>
+              </div>
+            ) : (
+              activeBubbles.map(note => (
+                <Bubble key={note.id} note={note} onClick={setSelectedNote} />
+              ))
+            )}
+          </div>
 
-          {/* Top Spacer */}
-          <div className="h-32 flex-shrink-0" />
         </div>
 
         {/* Input Area (Anchored Bottom) */}
-        <div className="p-4 md:p-12 md:pb-16 bg-gradient-to-t from-[#fafafa] via-[#fafafa] to-transparent z-10 transition-colors duration-500">
+        <div className="px-6 md:px-12 pb-8 pt-4 bg-gradient-to-t from-white via-white/90 to-transparent z-10 w-full max-w-5xl mx-auto">
           <Composer onCompose={handleCompose} loading={loading} />
         </div>
 
       </main>
+
+      {/* Overlay */}
+      {selectedNote && (
+        <NoteOverlay
+          note={selectedNote}
+          onClose={() => setSelectedNote(null)}
+          onUpdate={handleUpdate}
+          onArchive={handleArchive}
+        />
+      )}
+
     </div>
   );
 }

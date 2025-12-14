@@ -27,9 +27,9 @@ export function Composer({ onCompose, loading }: ComposerProps) {
     };
 
     return (
-        <div className="max-w-3xl mx-auto w-full group">
-            <form onSubmit={handleSubmit} className="relative">
-                <div className="absolute inset-x-0 -top-16 flex justify-center gap-4 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-500 ease-in-out translate-y-4 focus-within:translate-y-0 group-hover:translate-y-0">
+        <div className="max-w-3xl mx-auto w-full">
+            <form onSubmit={handleSubmit} className="relative group">
+                <div className="absolute inset-x-0 -top-12 flex justify-center gap-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300">
                     {INTENTS.map((item) => {
                         const Icon = item.icon;
                         const isSelected = intent === item.id;
@@ -38,19 +38,19 @@ export function Composer({ onCompose, loading }: ComposerProps) {
                                 key={item.id}
                                 type="button"
                                 onClick={() => setIntent(item.id)}
-                                className={`p-2 rounded-full transition-all duration-300 ${isSelected
-                                    ? 'text-gray-900 bg-gray-100'
-                                    : 'text-gray-300 hover:text-gray-500'
+                                className={`p-1.5 rounded-full transition-all border border-gray-200 bg-white ${isSelected
+                                    ? 'text-black border-gray-400 bg-gray-100 shadow-sm'
+                                    : 'text-gray-400 hover:text-gray-600'
                                     }`}
                                 title={item.label}
                             >
-                                <Icon className="w-4 h-4" />
+                                <Icon className="w-3 h-3" />
                             </button>
                         );
                     })}
                 </div>
 
-                <div className="relative flex items-end gap-2 p-2">
+                <div className="relative flex items-center bg-white border border-gray-200 rounded-2xl p-2 transition-all shadow-sm focus-within:shadow-md focus-within:border-gray-300">
                     <textarea
                         value={content}
                         onChange={(e) => {
@@ -62,17 +62,17 @@ export function Composer({ onCompose, loading }: ComposerProps) {
                                 if (content.trim()) handleSubmit(e);
                             }
                         }}
-                        placeholder="Thought..."
-                        className="w-full bg-transparent border-none focus:ring-0 text-xl font-light placeholder-gray-300 resize-none min-h-[50px] max-h-[200px] py-2 px-0 text-gray-900 caret-gray-400"
+                        placeholder="Type a thought..."
+                        className="w-full bg-transparent border-none focus:ring-0 text-base placeholder-gray-400 resize-none min-h-[44px] max-h-[200px] py-2 px-3 text-gray-900"
                         rows={1}
                         disabled={loading}
                     />
                     <button
                         type="submit"
                         disabled={loading || !content.trim()}
-                        className="pb-3 text-gray-300 hover:text-gray-900 transition-colors disabled:opacity-0"
+                        className="p-2 mr-1 rounded-xl text-gray-400 hover:text-black hover:bg-gray-100 transition-colors disabled:opacity-0"
                     >
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <div className="w-2 h-2 rounded-full bg-current mb-1.5" />}
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <div className="w-4 h-4 bg-black rounded-full" />}
                     </button>
                 </div>
             </form>

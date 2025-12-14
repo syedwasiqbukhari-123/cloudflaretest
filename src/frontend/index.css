@@ -3,26 +3,12 @@
 @tailwind utilities;
 
 @layer utilities {
-    .animate-float-up {
-        animation: floatUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    }
-}
-
-@keyframes floatUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.98);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+    .animate-in {
+        animation-fill-mode: forwards;
     }
 }
 
 body {
-    background-color: #fafafa;
-    /* Warm light gray */
-    color: #1c1917;
-    /* Warm dark gray */
+    background-color: #ffffff;
+    color: #111827;
 }
