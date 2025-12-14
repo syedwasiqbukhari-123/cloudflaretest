@@ -102,7 +102,7 @@ function App() {
         {/* 'items-end' aligns items within the row to the bottom (good for variable height) */}
         <div className="flex-1 overflow-y-auto px-6 md:px-12 py-8 scrollbar-hide flex flex-col justify-end">
 
-          <div className="flex flex-wrap items-end content-end gap-3 pb-4 min-h-0">
+          <div className="w-full max-w-3xl mx-auto flex flex-wrap items-end content-end gap-3 pb-4 min-h-0">
             {fetching ? (
               <div className="w-full flex justify-center py-20 opacity-30">
                 <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
