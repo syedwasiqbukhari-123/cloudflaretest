@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Wind } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import type { Note, NoteIntent } from "../types";
 import { Composer } from "./components/Composer";
 import { NoteCard } from "./components/NoteCard";
@@ -72,25 +72,24 @@ function App() {
   // Archived are totally hidden in this view (or we could have an archive toggle elsewhere, but keeping it simple as per prompt).
 
   return (
-    <div className="flex h-screen bg-white text-gray-900 font-sans selection:bg-gray-200 overflow-hidden">
+    <div className="flex h-screen bg-[#fafafa] text-gray-900 font-sans selection:bg-gray-200 overflow-hidden">
 
       {/* Sidebar */}
       <Sidebar activeSpace={activeSpace} onSpaceChange={setActiveSpace} />
 
       {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col relative max-w-5xl mx-auto w-full">
+      <main className="flex-1 flex flex-col relative max-w-4xl mx-auto w-full">
 
         {/* Stream (Flex Reverse for Bottom Up) */}
-        <div className="flex-1 flex flex-col-reverse overflow-y-auto p-4 md:p-8 space-y-reverse space-y-4 scrollbar-hide">
+        <div className="flex-1 flex flex-col-reverse overflow-y-auto px-4 md:px-12 py-8 space-y-reverse space-y-6 scrollbar-hide">
 
           {fetching ? (
-            <div className="flex justify-center py-20 opacity-50">
-              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+            <div className="flex justify-center py-20 opacity-0 animate-pulse delay-500">
+              <Loader2 className="w-5 h-5 text-gray-300 animate-spin" />
             </div>
           ) : activeStream.length === 0 ? (
-            <div className="flex flex-col items-center justify-center flex-1 opacity-40 pb-20 text-gray-400">
-              <Wind className="w-16 h-16 mb-4" />
-              <p className="font-light">Mind clear. Ready for thoughts.</p>
+            <div className="flex flex-col items-center justify-center flex-1 opacity-0 animate-in fade-in duration-1000">
+              <p className="font-light text-gray-300 text-sm tracking-widest uppercase">Space Empty</p>
             </div>
           ) : (
             activeStream.map(note => (
@@ -98,12 +97,12 @@ function App() {
             ))
           )}
 
-          {/* Top Spacer to allow scrolling up */}
-          <div className="h-20 flex-shrink-0" />
+          {/* Top Spacer */}
+          <div className="h-32 flex-shrink-0" />
         </div>
 
         {/* Input Area (Anchored Bottom) */}
-        <div className="p-4 md:p-6 pb-8 bg-gradient-to-t from-white via-white to-transparent z-10">
+        <div className="p-4 md:p-12 md:pb-16 bg-gradient-to-t from-[#fafafa] via-[#fafafa] to-transparent z-10 transition-colors duration-500">
           <Composer onCompose={handleCompose} loading={loading} />
         </div>
 

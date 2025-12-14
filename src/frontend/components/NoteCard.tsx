@@ -17,36 +17,37 @@ export function NoteCard({ note, onArchive }: NoteCardProps) {
 
     const Icon = intentIcons[note.intent] || Zap;
 
-    // Visual cues based on status (Text Color / Opacity instead of Border)
+    // Visual cues based on Aging (Opacity/Weight)
     const statusStyles = {
-        alive: "text-gray-900 font-normal",
-        warming: "text-gray-500",
-        cooling: "text-gray-400",
+        alive: "text-gray-900 font-normal opacity-100",
+        warming: "text-gray-600 font-light opacity-80",
+        cooling: "text-gray-400 font-light opacity-60",
         archived: "hidden",
     };
 
     return (
-        <div className={`group relative py-3 px-4 transition-all hover:bg-gray-100 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500`}>
-            <div className="flex items-start gap-4 mx-auto max-w-3xl">
-                {/* Icon Column */}
-                <div className="mt-1 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
-                    <Icon className="w-4 h-4 text-gray-400 group-hover:text-black" />
-                </div>
+        <div className={`group relative py-2 pl-4 pr-12 transition-all duration-700 animate-float-up`}>
+            <div className="flex items-baseline gap-6 mx-auto max-w-3xl">
 
-                {/* Content Column */}
+                {/* Content Column - Pure Text */}
                 <div className="flex-1 min-w-0">
-                    <div className={`text-base leading-relaxed whitespace-pre-wrap ${statusStyles[note.status]}`}>
+                    <div className={`text-lg leading-relaxed whitespace-pre-wrap ${statusStyles[note.status]} transition-colors duration-1000`}>
                         {note.content}
                     </div>
-                    <div className="mt-1 flex items-center justify-between text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span>{new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        <button
-                            onClick={() => onArchive(note.id)}
-                            className="hover:text-black transition-colors"
-                        >
-                            Archive
-                        </button>
+                </div>
+
+                {/* Subtle Actions (Only on Hover) */}
+                <div className="w-8 flex flex-col items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div title={note.intent} className="text-gray-300">
+                        <Icon className="w-3 h-3" />
                     </div>
+                    <button
+                        onClick={() => onArchive(note.id)}
+                        className="text-gray-300 hover:text-red-400 transition-colors"
+                        title="Archive"
+                    >
+                        <span className="text-xs">×</span>
+                    </button>
                 </div>
             </div>
         </div>

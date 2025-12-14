@@ -14,13 +14,13 @@ const SPACES = [
 
 export function Sidebar({ activeSpace, onSpaceChange }: SidebarProps) {
     return (
-        <div className="w-16 md:w-64 border-r border-gray-200 flex flex-col items-center md:items-stretch py-8 bg-gray-50">
-            <div className="mb-8 px-0 md:px-6 flex justify-center md:justify-start">
-                <div className="bg-white p-2 text-black border border-gray-200 rounded-lg shadow-sm">
-                    <Clock className="w-5 h-5" />
+        <div className="w-16 md:w-64 flex flex-col items-center md:items-stretch py-12 bg-transparent transition-opacity duration-500">
+            <div className="mb-12 px-0 md:px-8 flex justify-center md:justify-start">
+                <div className="text-gray-400 opacity-50 hover:opacity-100 transition-opacity">
+                    <Clock className="w-6 h-6" />
                 </div>
             </div>
-            <nav className="space-y-2 px-2 md:px-4">
+            <nav className="space-y-4 px-2 md:px-6">
                 {SPACES.map((space) => {
                     const Icon = space.icon;
                     const isActive = activeSpace === space.id;
@@ -29,21 +29,17 @@ export function Sidebar({ activeSpace, onSpaceChange }: SidebarProps) {
                         <button
                             key={space.id}
                             onClick={() => onSpaceChange(space.id)}
-                            className={`w-full flex items-center justify-center md:justify-start gap-3 p-3 rounded-xl transition-all ${isActive
-                                ? 'bg-white text-black shadow-sm border border-gray-200'
-                                : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'
+                            className={`w-full flex items-center justify-center md:justify-start gap-4 p-2 rounded-lg transition-all duration-300 ${isActive
+                                ? 'text-gray-900 font-medium'
+                                : 'text-gray-400 hover:text-gray-600'
                                 }`}
                         >
-                            <Icon className="w-5 h-5 flex-shrink-0" />
-                            <span className="hidden md:block font-medium">{space.label}</span>
+                            <Icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${isActive ? 'scale-110' : ''}`} />
+                            <span className="hidden md:block text-base tracking-wide">{space.label}</span>
                         </button>
                     );
                 })}
             </nav>
-
-            <div className="mt-auto px-4 hidden md:block">
-                <p className="text-xs text-gray-400 text-center">Durable v3.0</p>
-            </div>
         </div>
     );
 }
