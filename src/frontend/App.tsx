@@ -1,23 +1,24 @@
 import { useState, useEffect } from "react";
-import { Loader2, Archive, Wind, Activity } from "lucide-react";
+import { Loader2, Wind } from "lucide-react";
 import type { Note, NoteIntent } from "../types";
 import { Composer } from "./components/Composer";
 import { NoteCard } from "./components/NoteCard";
+import { Sidebar } from "./components/Sidebar";
 
 function App() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [fetching, setFetching] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [showArchive, setShowArchive] = useState(false);
+  const [activeSpace, setActiveSpace] = useState('main');
 
   useEffect(() => {
-    fetchNotes();
-  }, []);
+    fetchNotes(activeSpace);
+  }, [activeSpace]);
 
-  const fetchNotes = async () => {
+  const fetchNotes = async (space: string) => {
     setFetching(true);
     try {
-      const res = await fetch("/api/notes");
+      const res = await fetch(`/api/notes?space=${space}`);
       if (res.ok) {
         const data = await res.json() as { notes: Note[] };
         setNotes(data.notes || []);
@@ -35,13 +36,15 @@ function App() {
       const res = await fetch("/api/notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, intent }), // Backend auth middleware handles userId injection, but we passed it in body in index.ts logic.
-        // Wait, index.ts logic said: "Clone request to inject userId". So we don't need to send it from frontend if AuthMiddleware was real.
-        // But currently AuthMiddleware returns "dev-user-001".
-        // Let's rely on backend injection.
+        body: JSON.stringify({ content, intent, space: activeSpace }),
       });
       if (res.ok) {
         const newNote = await res.json() as Note;
+        // In Chat Style, Newest is at BOTTOM.
+        // Our API sorts Newest First (Desc).
+        // Frontend State: [Newest (0), Older (1), ...]
+        // Render: flex-col-reverse -> Bottom = Item 0.
+        // So we add new note to START of array.
         setNotes([newNote, ...notes]);
       }
     } catch (error) {
@@ -52,96 +55,59 @@ function App() {
   };
 
   const handleArchive = async (id: string, summary?: string) => {
-    // Optimistic update
     setNotes(notes.map(n => n.id === id ? { ...n, status: 'archived' } : n));
-
     try {
       await fetch(`/api/notes/${id}/archive`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ summary }),
       });
-      // Re-fetch to get any server-side state updates (decay calculation)
-      // Actually, let's just stick with optimistic for snappiness.
     } catch (error) {
-      console.error("Failed to archive note", error);
-      fetchNotes(); // Revert on error
+      fetchNotes(activeSpace);
     }
   };
 
-  // Filter Logic
-  const activeStream = notes.filter(n => n.status === 'alive' || n.status === 'warming');
-  const archiveStream = notes.filter(n => n.status === 'cooling' || n.status === 'archived');
-
-  // Sort: active by intent/time? No, "relevance and recent activity".
-  // NoteStore returns them sorted by updatedAt desc. We'll keep that.
+  const activeStream = notes.filter(n => n.status !== 'archived');
+  // We can show cooling notes in stream, they just fade.
+  // Archived are totally hidden in this view (or we could have an archive toggle elsewhere, but keeping it simple as per prompt).
 
   return (
-    <div className="min-h-screen bg-black text-gray-200 font-sans selection:bg-gray-800">
-      <div className="max-w-2xl mx-auto px-4 py-12 md:py-20 space-y-12">
+    <div className="flex h-screen bg-black text-gray-200 font-sans selection:bg-gray-800 overflow-hidden">
 
-        {/* Header */}
-        <header className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-xl bg-gray-900 ${fetching ? 'animate-pulse' : ''}`}>
-              <Activity className="w-6 h-6 text-white" />
+      {/* Sidebar */}
+      <Sidebar activeSpace={activeSpace} onSpaceChange={setActiveSpace} />
+
+      {/* Main Chat Area */}
+      <main className="flex-1 flex flex-col relative max-w-5xl mx-auto w-full">
+
+        {/* Stream (Flex Reverse for Bottom Up) */}
+        <div className="flex-1 flex flex-col-reverse overflow-y-auto p-4 md:p-8 space-y-reverse space-y-4 scrollbar-hide">
+
+          {fetching ? (
+            <div className="flex justify-center py-20 opacity-50">
+              <Loader2 className="w-6 h-6 animate-spin" />
             </div>
-            <h1 className="text-xl font-medium tracking-tight text-white">Durable Notes</h1>
-          </div>
-
-          <button
-            onClick={() => setShowArchive(!showArchive)}
-            className={`p-2 rounded-full transition-colors ${showArchive ? 'bg-gray-800 text-white' : 'text-gray-600 hover:text-gray-400'}`}
-            title="Toggle Archive"
-          >
-            <Archive className="w-5 h-5" />
-          </button>
-        </header>
-
-        {/* Composer */}
-        <section>
-          <Composer onCompose={handleCompose} loading={loading} />
-        </section>
-
-        {/* Active Stream */}
-        <section className="space-y-6">
-          {fetching && notes.length === 0 ? (
-            <div className="flex justify-center py-20 text-gray-800">
-              <Loader2 className="w-8 h-8 animate-spin" />
-            </div>
-          ) : activeStream.length === 0 && !fetching ? (
-            <div className="text-center py-20 text-gray-600">
-              <Wind className="w-12 h-12 mx-auto mb-4 opacity-20" />
-              <p className="font-light">Mind clear. Ready for thoughts.</p>
+          ) : activeStream.length === 0 ? (
+            <div className="flex flex-col items-center justify-center flex-1 opacity-20 pb-20">
+              <Wind className="w-16 h-16 mb-4" />
+              <p className="font-light">Empty space.</p>
             </div>
           ) : (
-            <div className="grid gap-6">
-              {activeStream.map(note => (
-                <NoteCard key={note.id} note={note} onArchive={handleArchive} />
-              ))}
-            </div>
+            activeStream.map(note => (
+              <NoteCard key={note.id} note={note} onArchive={handleArchive} />
+            ))
           )}
-        </section>
 
-        {/* Archive / Cooling Stream */}
-        {showArchive && (
-          <section className="pt-12 border-t border-gray-900 animate-in fade-in slide-in-from-bottom-4">
-            <h2 className="text-sm font-medium text-gray-500 mb-6 uppercase tracking-widest pl-1">
-              Fading & Archived
-            </h2>
-            <div className="grid gap-4 opacity-60 hover:opacity-100 transition-opacity duration-500">
-              {archiveStream.length === 0 ? (
-                <p className="text-gray-700 italic pl-1">No history yet.</p>
-              ) : (
-                archiveStream.map(note => (
-                  <NoteCard key={note.id} note={note} onArchive={handleArchive} />
-                ))
-              )}
-            </div>
-          </section>
-        )}
+          {/* Top Spacer to allow scrolling up */}
+          <div className="h-20 flex-shrink-0" />
+        </div>
 
-      </div>
+        {/* Input Area (Anchored Bottom) */}
+        <div className="p-4 md:p-6 pb-8 bg-gradient-to-t from-black via-black to-transparent z-10">
+          <Composer onCompose={handleCompose} loading={loading} />
+        </div>
+
+      </main>
     </div>
   );
 }

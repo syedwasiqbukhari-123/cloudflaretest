@@ -18,65 +18,63 @@ const INTENTS: { id: NoteIntent; label: string; icon: any }[] = [
 export function Composer({ onCompose, loading }: ComposerProps) {
     const [content, setContent] = useState('');
     const [intent, setIntent] = useState<NoteIntent>('thinking');
-    const [expanded, setExpanded] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!content.trim()) return;
         await onCompose(content, intent);
         setContent('');
-        setExpanded(false);
     };
 
     return (
-        <div className={`transition-all duration-300 ${expanded ? 'bg-gray-900 ring-1 ring-gray-700' : 'bg-gray-900/50'} rounded-2xl p-4 shadow-lg`}>
-            <form onSubmit={handleSubmit} className="relative">
-                <textarea
-                    value={content}
-                    onChange={(e) => {
-                        setContent(e.target.value);
-                        setExpanded(true);
-                    }}
-                    onFocus={() => setExpanded(true)}
-                    placeholder="Capture a thought..."
-                    className="w-full bg-transparent border-none focus:ring-0 text-lg resize-none placeholder-gray-500 min-h-[60px]"
-                    rows={expanded ? 4 : 1}
-                    disabled={loading}
-                />
+        <div className="max-w-3xl mx-auto w-full">
+            <form onSubmit={handleSubmit} className="relative group">
+                <div className="absolute inset-x-0 -top-12 flex justify-center gap-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300">
+                    {INTENTS.map((item) => {
+                        const Icon = item.icon;
+                        const isSelected = intent === item.id;
+                        return (
+                            <button
+                                key={item.id}
+                                type="button"
+                                onClick={() => setIntent(item.id)}
+                                className={`p-1.5 rounded-full transition-all border border-gray-800 bg-black ${isSelected
+                                        ? 'text-white border-gray-600 bg-gray-900'
+                                        : 'text-gray-600 hover:text-gray-400'
+                                    }`}
+                                title={item.label}
+                            >
+                                <Icon className="w-3 h-3" />
+                            </button>
+                        );
+                    })}
+                </div>
 
-                {expanded && (
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-800 animate-in fade-in slide-in-from-top-2">
-                        <div className="flex gap-2">
-                            {INTENTS.map((item) => {
-                                const Icon = item.icon;
-                                const isSelected = intent === item.id;
-                                return (
-                                    <button
-                                        key={item.id}
-                                        type="button"
-                                        onClick={() => setIntent(item.id)}
-                                        className={`p-2 rounded-lg transition-all ${isSelected
-                                            ? 'bg-gray-700 text-white shadow-sm'
-                                            : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800'
-                                            }`}
-                                        title={item.label}
-                                    >
-                                        <Icon className="w-4 h-4" />
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading || !content.trim()}
-                            className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 flex items-center gap-2"
-                        >
-                            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                            <span>Capture</span>
-                        </button>
-                    </div>
-                )}
+                <div className="relative flex items-center bg-gray-900/40 border border-gray-800 rounded-2xl p-2 transition-colors focus-within:border-gray-600 focus-within:bg-gray-900">
+                    <textarea
+                        value={content}
+                        onChange={(e) => {
+                            setContent(e.target.value);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                if (content.trim()) handleSubmit(e);
+                            }
+                        }}
+                        placeholder="Type a thought..."
+                        className="w-full bg-transparent border-none focus:ring-0 text-base placeholder-gray-600 resize-none min-h-[44px] max-h-[200px] py-2 px-3 text-gray-200"
+                        rows={1}
+                        disabled={loading}
+                    />
+                    <button
+                        type="submit"
+                        disabled={loading || !content.trim()}
+                        className="p-2 mr-1 rounded-xl text-gray-500 hover:text-white hover:bg-gray-800 transition-colors disabled:opacity-0"
+                    >
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <div className="w-4 h-4 bg-white rounded-full" />}
+                    </button>
+                </div>
             </form>
         </div>
     );

@@ -1,4 +1,4 @@
-import { Archive, Clock, Zap, RefreshCw } from "lucide-react";
+import { Clock, Zap, RefreshCw } from "lucide-react";
 import type { Note } from "../../types";
 
 interface NoteCardProps {
@@ -7,46 +7,47 @@ interface NoteCardProps {
 }
 
 export function NoteCard({ note, onArchive }: NoteCardProps) {
-    // Visual cues based on status
-    const statusStyles = {
-        alive: "border-l-4 border-l-green-500 bg-gray-900",
-        warming: "border-l-4 border-l-yellow-500 bg-gray-900/80 grayscale-[30%]",
-        cooling: "border-l-4 border-l-blue-500 bg-gray-900/60 grayscale-[60%]",
-        archived: "hidden", // Should not render usually
-    };
-
     const intentIcons = {
         thinking: Zap,
         planning: Clock,
-        building: RefreshCw, // fallback
+        building: RefreshCw,
         writing: RefreshCw,
         shared: RefreshCw,
     };
 
     const Icon = intentIcons[note.intent] || Zap;
 
+    // Visual cues based on status (Text Color / Opacity instead of Border)
+    const statusStyles = {
+        alive: "text-gray-100",
+        warming: "text-gray-400",
+        cooling: "text-gray-600",
+        archived: "hidden",
+    };
+
     return (
-        <div className={`group relative p-6 rounded-xl border border-gray-800 transition-all hover:shadow-xl hover:-translate-y-1 ${statusStyles[note.status]}`}>
-            <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-500 font-medium">
-                    <Icon className="w-3 h-3" />
-                    <span>{note.intent} • {note.status}</span>
+        <div className={`group relative py-3 px-4 transition-all hover:bg-gray-900/30 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500`}>
+            <div className="flex items-start gap-4 mx-auto max-w-3xl">
+                {/* Icon Column */}
+                <div className="mt-1 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
+                    <Icon className="w-4 h-4 text-gray-500" />
                 </div>
-                <button
-                    onClick={() => onArchive(note.id)}
-                    className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-white transition-opacity"
-                    title="Archive Thought"
-                >
-                    <Archive className="w-4 h-4" />
-                </button>
-            </div>
 
-            <p className="text-gray-200 text-lg leading-relaxed whitespace-pre-wrap font-light">
-                {note.content}
-            </p>
-
-            <div className="mt-4 text-xs text-gray-600 flex justify-end">
-                {new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {/* Content Column */}
+                <div className="flex-1 min-w-0">
+                    <div className={`text-base leading-relaxed whitespace-pre-wrap font-light ${statusStyles[note.status]}`}>
+                        {note.content}
+                    </div>
+                    <div className="mt-1 flex items-center justify-between text-xs text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span>{new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <button
+                            onClick={() => onArchive(note.id)}
+                            className="hover:text-white transition-colors"
+                        >
+                            Archive
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

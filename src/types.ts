@@ -11,6 +11,7 @@ export interface Note {
     updatedAt: number;
     closedAt?: number;
     summary?: string;
+    space: string;
 }
 
 export type ApiResponse = {

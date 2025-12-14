@@ -30,12 +30,19 @@ export class NoteStore extends DurableObject {
 
         // GET /api/notes
         if (request.method === "GET" && url.pathname === "/api/notes") {
+            const space = url.searchParams.get("space") || "main";
             const notesMap = await this.state.storage.list<Note>();
             let notes = Array.from(notesMap.values());
 
-            // Apply Decay & Sort
-            notes = notes.map(n => ({ ...n, status: this.calculateStatus(n) }));
-            notes.sort((a, b) => b.updatedAt - a.updatedAt);
+            // Apply Decay & Sort & Filter
+            notes = notes
+                .filter(n => (n.space || 'main') === space)
+                .map(n => ({ ...n, status: this.calculateStatus(n) }));
+
+            // Sort by CreatedAt Descending (Newest First)
+            // In chat, newest is typically at the bottom.
+            // But visually we will flex-reverse, so this order is fine.
+            notes.sort((a, b) => b.createdAt - a.createdAt);
 
             return new Response(JSON.stringify({ notes }), {
                 headers: { "Content-Type": "application/json" },
@@ -44,7 +51,7 @@ export class NoteStore extends DurableObject {
 
         // POST /api/notes
         if (request.method === "POST" && url.pathname === "/api/notes") {
-            const body = await request.json() as { content: string; intent: NoteIntent; userId: string };
+            const body = await request.json() as { content: string; intent: NoteIntent; userId: string; space?: string };
             const now = Date.now();
 
             const newNote: Note = {
@@ -55,6 +62,7 @@ export class NoteStore extends DurableObject {
                 status: 'alive',
                 createdAt: now,
                 updatedAt: now,
+                space: body.space || 'main',
             };
 
             await this.state.storage.put(newNote.id, newNote);
