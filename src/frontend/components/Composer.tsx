@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Loader2, Brain, PenTool, Layout, Share2, MessageSquare } from 'lucide-react';
 import type { NoteIntent } from '../../types';
 
@@ -18,12 +18,15 @@ const INTENTS: { id: NoteIntent; label: string; icon: any }[] = [
 export function Composer({ onCompose, loading }: ComposerProps) {
     const [content, setContent] = useState('');
     const [intent, setIntent] = useState<NoteIntent>('thinking');
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!content.trim()) return;
         await onCompose(content, intent);
         setContent('');
+        // Restore focus immediately after submission completes and disabled state lifts
+        setTimeout(() => textareaRef.current?.focus(), 0);
     };
 
     return (
@@ -52,6 +55,7 @@ export function Composer({ onCompose, loading }: ComposerProps) {
 
                 <div className="relative flex items-center bg-white border border-gray-200 rounded-2xl p-2 transition-all shadow-sm focus-within:shadow-md focus-within:border-gray-300">
                     <textarea
+                        ref={textareaRef}
                         value={content}
                         onChange={(e) => {
                             setContent(e.target.value);
