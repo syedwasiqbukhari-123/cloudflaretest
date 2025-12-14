@@ -109,39 +109,36 @@ function App() {
       <main className="flex-1 flex flex-col relative w-full h-full">
 
         {/* Bubble Field */}
-        <div className="flex-1 overflow-y-auto px-6 md:px-12 py-8 scrollbar-hide flex flex-col">
+        {/* Bubble Field */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 md:px-12 py-4 flex flex-col custom-scrollbar">
 
-          {/* 
-                Safe approach for bottom-filling list:
-                min-h-full ensures the container is at least as tall as the view.
-                justify-end pushes content to bottom.
-                When content overflows, it naturally extends upwards and scrollbar works.
-            */}
-          <div className="min-h-full flex flex-col justify-end">
-            <div className="w-full max-w-3xl mx-auto flex flex-wrap items-end content-end gap-3 pb-4">
-              {fetching ? (
-                <div className="w-full flex justify-center py-20 opacity-30">
-                  <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-                </div>
-              ) : error ? (
-                <div className="w-full flex flex-col items-center justify-center py-20 text-red-500 opacity-80">
-                  <p>Failed to load thoughts.</p>
-                  <p className="text-xs mt-2">{error}</p>
-                  <button onClick={() => fetchNotes(activeSpace)} className="mt-4 px-4 py-2 bg-red-100 rounded-full text-sm hover:bg-red-200">Retry</button>
-                </div>
-              ) : activeBubbles.length === 0 ? (
-                <div className="w-full flex flex-col items-center justify-center py-20 opacity-40 text-gray-300">
-                  <Wind className="w-12 h-12 mb-4 opacity-50" />
-                  <p className="font-light tracking-wide">Mind clear. Ready for thoughts.</p>
-                </div>
-              ) : (
-                activeBubbles.map(note => (
-                  <Bubble key={note.id} note={note} onClick={setSelectedNote} />
-                ))
-              )}
-              {/* Auto-scroll Target */}
-              <div ref={bottomRef} />
-            </div>
+          {/* Spacer to push content to bottom when sparse */}
+          <div className="flex-1" />
+
+          {/* Content Wrapper */}
+          <div className="w-full max-w-3xl mx-auto flex flex-wrap items-end content-end gap-3 pb-4 shrink-0">
+            {fetching ? (
+              <div className="w-full flex justify-center py-20 opacity-30">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              </div>
+            ) : error ? (
+              <div className="w-full flex flex-col items-center justify-center py-20 text-red-500 opacity-80">
+                <p>Failed to load thoughts.</p>
+                <p className="text-xs mt-2">{error}</p>
+                <button onClick={() => fetchNotes(activeSpace)} className="mt-4 px-4 py-2 bg-red-100 rounded-full text-sm hover:bg-red-200">Retry</button>
+              </div>
+            ) : activeBubbles.length === 0 ? (
+              <div className="w-full flex flex-col items-center justify-center py-20 opacity-40 text-gray-300">
+                <Wind className="w-12 h-12 mb-4 opacity-50" />
+                <p className="font-light tracking-wide">Mind clear. Ready for thoughts.</p>
+              </div>
+            ) : (
+              activeBubbles.map(note => (
+                <Bubble key={note.id} note={note} onClick={setSelectedNote} />
+              ))
+            )}
+            {/* Auto-scroll Target */}
+            <div ref={bottomRef} className="w-full h-px" />
           </div>
 
         </div>
